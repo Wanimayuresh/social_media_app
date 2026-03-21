@@ -1,5 +1,9 @@
 const RootLayout = () => {
-  return <div></div>;
+  return (
+    <>
+      <div>RootLayout</div>
+    </>
+  );
 };
 
 export default RootLayout;

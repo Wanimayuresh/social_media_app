@@ -21,7 +21,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: "home", element: <Home /> },
-      // { path: "sign-up", element: <SignUpForm /> },
+      { path: "sign-up", element: <SignUpForm /> },
     ],
   },
 ]);
