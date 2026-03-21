@@ -1,9 +1,12 @@
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes/router";
 import "./App.css";
-
+import { Button } from "./components/ui/button";
 function App() {
   return (
     <>
-      <div className="bg-red-700">Social Media App</div>
+      <RouterProvider router={router} />
+      <Button>Hello</Button>
     </>
   );
 }
