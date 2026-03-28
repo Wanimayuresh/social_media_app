@@ -7,10 +7,6 @@ import RootLayout from "../root/RootLayout";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
     element: <AuthLayout />,
     children: [
       { path: "sign-in", element: <SignInForm /> },
@@ -20,8 +16,8 @@ export const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      { path: "home", element: <Home /> },
-      { path: "sign-up", element: <SignUpForm /> },
+      { path: "/", element: <Home /> },
+      // { path: "sign-up", element: <SignUpForm /> },
     ],
   },
 ]);
