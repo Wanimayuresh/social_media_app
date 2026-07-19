@@ -22,4 +22,8 @@ export class AuthController{
         const updatePassword = await this.authService.changePassword(req.body)
         return res.status(200).json(updatePassword)
     }
+    async logoutAll(req:Request,res:Response){
+        const logoutSession = await this.authService.logoutAll(req.user.userId)
+        return res.status(200).json(logoutSession)
+    }
 }
