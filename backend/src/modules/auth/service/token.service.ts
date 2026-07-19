@@ -34,4 +34,10 @@ export class TokenService {
          throw new AppError("Invalid or expired token", 401);
     }
   }
+
+  getExpirationDate(token: string): Date {
+      const verified = jwt.verify(token, env.JWT_REFRESH_SECRET) as jwt.JwtPayload;
+      return new Date(verified.exp! * 1000);
+    
+  }
 }
