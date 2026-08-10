@@ -7,5 +7,7 @@ router.post("/sign-up",authController.signUp.bind(authController))
 router.post("/login",authController.login.bind(authController))
 router.post("/refresh",authController.refresh.bind(authController))
 router.patch("/change-password",authMiddleware,authController.updatePassword.bind(authController))
+router.post("/logout",authController.logout.bind(authController))
+router.post("/logout-all",authMiddleware,authController.logoutAll.bind(authController))
 
 export default router;
