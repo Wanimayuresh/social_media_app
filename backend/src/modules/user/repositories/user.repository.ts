@@ -1,5 +1,6 @@
 import { pool } from "../../../config/database";
-import { CreateUserInput, User } from "../types/user.types";
+import { AppError } from "../../../shared/errors/AppError";
+import { CreateUserInput, UpdateUserInput, User } from "../types/user.types";
 
 export class UserRepository {
   async create(user: CreateUserInput) :Promise<User>{
@@ -11,7 +12,10 @@ export class UserRepository {
         const values = [user.username,user.email,user.password_hash,user.avatar_url??null,user.bio??null]
        
        const result = await pool.query (sql,values)
-        return result.rows[0]     
+        if (!result.rows[0]) {
+          throw new AppError("Failed to create user", 500);
+        }
+        return result.rows[0]
   }
 
   async findByEmail(email:string):Promise<User |null>{
@@ -34,6 +38,52 @@ export class UserRepository {
     const values = [newPassword,userId]
     await pool.query(sql,values)
   }
+  
+  async updateProfile(
+  id: string,
+  data: UpdateUserInput,
+): Promise<User> {
+  const updates: string[] = [];
+  const values: unknown[] = [];
+
+  if (data.username !== undefined) {
+    updates.push(`username = $${values.length + 1}`);
+    values.push(data.username);
+  }
+
+  if (data.bio !== undefined) {
+    updates.push(`bio = $${values.length + 1}`);
+    values.push(data.bio);
+  }
+
+  if (data.avatarUrl !== undefined) {
+    updates.push(`avatar_url = $${values.length + 1}`);
+    values.push(data.avatarUrl);
+  }
+
+  if (updates.length === 0) {
+    throw new AppError("No fields provided for update", 400);
+  }
+
+  values.push(id);
+
+  const sql = `
+    UPDATE users
+    SET
+      ${updates.join(", ")},
+      updated_at = NOW()
+    WHERE id = $${values.length}
+    RETURNING *;
+  `;
+
+  const result = await pool.query<User>(sql, values);
+
+  if (!result.rows[0]) {
+    throw new AppError("User not found", 404);
+  }
+
+  return result.rows[0];
+}
   
 }
 // findBYEmail(){}

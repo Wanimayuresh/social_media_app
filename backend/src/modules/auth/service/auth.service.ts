@@ -54,8 +54,8 @@ export class AuthService {
       password_hash: passwordHash,
     };
     const user = await this.userRepository.create(createUserData);
-    const accessToken = this.tokenService.generateAccessToken({ userId: user.id });
-    const refreshToken = this.tokenService.generateRefreshToken({ userId: user.id });
+    const accessToken = this.tokenService.generateAccessToken({ userId: user.id,role:user.role });
+    const refreshToken = this.tokenService.generateRefreshToken({ userId: user.id,role:user.role });
     const result = this.buildAuthResponse(user, accessToken, refreshToken);
     await this.saveRefreshSession(user.id, refreshToken);
     return result;
@@ -71,8 +71,8 @@ export class AuthService {
     if (!comparePassword) {
       throw new AppError("Incorrect Email or Password", 401);
     }
-    const accessToken = this.tokenService.generateAccessToken({ userId: existingUser.id });
-    const refreshToken = this.tokenService.generateRefreshToken({ userId: existingUser.id });
+    const accessToken = this.tokenService.generateAccessToken({ userId: existingUser.id,role:existingUser.role });
+    const refreshToken = this.tokenService.generateRefreshToken({ userId: existingUser.id,role:existingUser.role });
 
     const result = this.buildAuthResponse(existingUser, accessToken, refreshToken);
     await this.saveRefreshSession(existingUser.id, refreshToken);
@@ -88,8 +88,8 @@ export class AuthService {
     const isValidUser = await this.userRepository.findById(payload.userId);
     if (!isValidUser) throw new AppError("Unauthorized user", 401);
     await this.refreshTokenRepository.delete(findSession.id);
-    const newAccessToken = this.tokenService.generateAccessToken({ userId: payload.userId });
-    const newRefreshToken = this.tokenService.generateRefreshToken({ userId: payload.userId });
+    const newAccessToken = this.tokenService.generateAccessToken({ userId: payload.userId,role:payload.role });
+    const newRefreshToken = this.tokenService.generateRefreshToken({ userId: payload.userId,role:payload.role });
     await this.saveRefreshSession(payload.userId, newRefreshToken);
     return {
       accessToken: newAccessToken,
