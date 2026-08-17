@@ -1,6 +1,6 @@
+import cookieParser from "cookie-parser";
 import express from "express";
 import pinoHttp from "pino-http";
-
 import { logger } from "./config/logger";
 import { authMiddleware } from "./middlewares/auth.middleware";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -9,9 +9,16 @@ import authRoutes from "./modules/auth/routes/auth.routes";
 import profileRoutes from "./modules/user/routes/user.routes"
 import { MESSAGES } from "./shared/constants/messages";
 import { sendSuccess } from "./shared/helpers/response";
+import cors from "cors";
 const app = express();
-
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
+app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 
 
