@@ -4,22 +4,29 @@ type AuthStatus = "initializing"|"authenticated"|"unauthenticated";
 
 interface AuthState {
     status:AuthStatus
+    accessToken:string|null
 }
 
 const initialState :AuthState ={
-    status:"initializing"
+    status:"initializing",
+    accessToken:null
 }
 
 const authSlice = createSlice({
     name:"auth",
     initialState,
     reducers:{
-        setAuthStatus(state,action:PayloadAction<AuthStatus>){
-            state.status = action.payload
+        setAuthenticated(state,action:PayloadAction<string>){
+            state.status = "authenticated";
+            state.accessToken = action.payload
+        },
+        setUnauthenticated(state){
+            state.status = "unauthenticated"
+            state.accessToken=null
         }
     }
 })
 
-export const { setAuthStatus } = authSlice.actions;
+export const { setAuthenticated,setUnauthenticated } = authSlice.actions;
 
 export default authSlice.reducer;
