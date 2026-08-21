@@ -1,65 +1,135 @@
-import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import React, { useState } from 'react'
-import { useLoginMutation } from '../queries/useLoginMutation';
-import { useMeQuery } from '../queries/useMeQuery';
-import { setAuthenticated } from '../store/authSlice';
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import formImage from "@/assets/Form Image.png";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
+import { useLoginMutation } from "../queries/useLoginMutation";
+import { signInSchema, type SignInSchema } from "../validation/auth.schema";
 
 const Login = () => {
-   const dispatch = useAppDispatch();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-  
-    const loginMutation = useLoginMutation();
-    const { data: me, isLoading } = useMeQuery();
-    const { status, accessToken } = useAppSelector((state) => state.auth);
-  
-    return (
-      <div style={{ padding: 24, fontFamily: "system-ui", maxWidth: 420 }}>
-        <h2>Instagram Login</h2>
-  
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            loginMutation.mutate({ email, password });
-          }}
-          style={{ display: "flex", flexDirection: "column", gap: 8 }}
-        >
-          <input
-            type="email"
-            placeholder="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit" disabled={loginMutation.isPending}>
-            {loginMutation.isPending ? "logging in..." : "Login"}
-          </button>
-        </form>
-  
-        {loginMutation.error && (
-          <p style={{ color: "red" }}>{loginMutation.error.message}</p>
-        )}
-  
-        <hr style={{ margin: "16px 0" }} />
-  
-        <p>redux status: {status}</p>
-        <p>accessToken: {accessToken ? `${accessToken.slice(0, 20)}...` : "null"}</p>
-        <p>me: {isLoading ? "loading..." : JSON.stringify(me)}</p>
-        <button
-        className="bg-red-400 m-10"
-    onClick={() => {
-      dispatch(setAuthenticated("invalid-token"));
-    }}
-  >
-    Make Token Invalid
-  </button>
-      </div>
-    );
-}
+  const loginMutation = useLoginMutation();
 
-export default Login
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (values: SignInSchema) => {
+    loginMutation.mutate(values, {
+      onError: (error) => {
+        toast.add({
+          type: "error",
+          title: "Sign in failed",
+          description: error.message.includes("401")
+            ? "Incorrect email or password."
+            : "Something went wrong. Please try again.",
+        });
+      },
+    });
+  };
+
+  return (
+    <div className="dark flex min-h-screen bg-background text-foreground">
+      {/* Img */}
+      <div className="relative hidden w-1/2 lg:block">
+        <img
+          src={formImage}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </div>
+
+      {/* Form */}
+      <div className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Welcome back
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Sign in to pick up where you left off.
+            </p>
+          </div>
+
+          <form
+            noValidate
+            className="space-y-5"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <Field data-invalid={!!errors.email}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="h-10"
+                aria-invalid={!!errors.email}
+                {...register("email")}
+              />
+              <FieldError errors={[errors.email]} />
+            </Field>
+
+            <Field data-invalid={!!errors.password}>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="h-10"
+                aria-invalid={!!errors.password}
+                {...register("password")}
+              />
+              <FieldError errors={[errors.password]} />
+              <FieldDescription className="text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </FieldDescription>
+            </Field>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="h-10 w-full"
+              disabled={loginMutation.isPending}
+            >
+              {loginMutation.isPending ? "Signing in…" : "Log in"}
+            </Button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link
+              to="/sign-up"
+              className="font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
