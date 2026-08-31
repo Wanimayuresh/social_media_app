@@ -6,8 +6,9 @@ import { authMiddleware } from "./middlewares/auth.middleware";
 import { errorHandler } from "./middlewares/errorHandler";
 import { notFoundHandler } from "./middlewares/notFoundHandler";
 import authRoutes from "./modules/auth/routes/auth.routes";
-import profileRoutes from "./modules/user/routes/user.routes"
+import profileRoutes from "./modules/user/routes/user.routes";
 import problemRoutes from "./modules/problems/routes/problem.routes";
+import solutionRoutes from "./modules/solutions/routes/solution.routes";
 import { MESSAGES } from "./shared/constants/messages";
 import { sendSuccess } from "./shared/helpers/response";
 import cors from "cors";
@@ -23,7 +24,8 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 
 app.use("/api/v1", problemRoutes);
-app.use("/api/v1",authMiddleware, profileRoutes)
+app.use("/api/v1", solutionRoutes);
+app.use("/api/v1", authMiddleware, profileRoutes);
 app.use(
   pinoHttp({
     logger,

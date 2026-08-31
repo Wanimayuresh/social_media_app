@@ -1,3 +1,4 @@
+import { PoolClient } from "pg";
 import { pool } from "../../../config/database";
 import { AppError } from "../../../shared/errors/AppError";
 import { CreateProblemInput, Problem, UpdateProblemInput } from "../problems.types";
@@ -64,4 +65,18 @@ export class ProblemRepository {
    const result= await pool.query(sql, values);
     return result.rows[0] || null;
   }
+
+  async markSolved(
+  problemId: string,
+  client: PoolClient
+): Promise<Problem | null> {
+  
+  const sql = ` UPDATE problems SET STATUS = 'SOLVED',
+                updated_at = NOW() WHERE id = $1
+                  RETURNING *`;
+  const values = [problemId]
+
+  const result = await client.query(sql,values);
+  return result.rows[0]|| null;
+}
 }

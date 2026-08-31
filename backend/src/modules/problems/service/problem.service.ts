@@ -27,7 +27,7 @@ export class ProblemService {
   async deleteProblem(problemId: string, userId: string) {
     const isProblem = await this.problemRepository.findById(problemId);
     if (!isProblem) throw new AppError("Problem not found", 404);
-    if (isProblem.user_id !== userId) throw new AppError("You are not owner og this problem", 403);
+    if (isProblem.user_id !== userId) throw new AppError("You are not owner of this problem", 403);
     if (isProblem.status === "SOLVED")
       throw new AppError("You can not delete this Problem because Problem is solved", 403);
     await this.problemRepository.delete(problemId);
